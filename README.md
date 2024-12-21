@@ -33,9 +33,9 @@ pip install requests matplotlib pycryptodome
 
 ![servicehall](./servicehall.png)
 
-### 1. 修改配置
+### 1. 输入账号信息
 
-新建 `account.json` 文件，输入学号、密码、服务代码。
+新建 `account.json` 文件，输入你的学号、密码、服务代码。
 
 ```json
 {
@@ -52,10 +52,11 @@ python main.py
 ```
 显示消费过的窗口总数、总金额，保存柱状图 `result_bar.png`, `result_pie.png`。
 
+> 你可能需要下载SimHei字体，或者更换为环境中已有的中文字体。
 
 ### 3. 修改其它配置（可选）
 
-修改 `config.json` 文件。
+修改 `config.json` 文件，自定义起始时间和配色。
 
 ```json
 {
