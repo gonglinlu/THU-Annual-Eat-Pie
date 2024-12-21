@@ -35,7 +35,7 @@ if __name__ == "__main__":
         idserial = input("请输入学号: ")
         password = input("请输入密码: ")
         servicehall = input("请输入服务代码（获取方法详见README.md）: ")
-        with open("./config/config.json", "w", encoding='utf-8') as f:
+        with open("./config/account.json", "w", encoding='utf-8') as f:
             json.dump({"password": password, "idserial": idserial, "servicehall": servicehall}, f, indent=4)
     
     # 读入配置信息
