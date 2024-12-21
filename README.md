@@ -56,7 +56,7 @@ python main.py
 
 ### 3. 修改其它配置（可选）
 
-修改 `config.json` 文件，自定义起始时间和配色。
+修改 `config.json` 文件，自定义起止时间和配色。
 
 ```json
 {
