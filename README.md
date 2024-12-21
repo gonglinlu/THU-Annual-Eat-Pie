@@ -50,7 +50,7 @@ pip install requests matplotlib pycryptodome
 ```bash
 python main.py
 ```
-输出消费过的窗口总数、总金额。
+显示消费过的窗口总数、总金额，保存柱状图 `result_bar.png`, `result_pie.png`。
 
 
 ### 3. 修改其它配置（可选）
