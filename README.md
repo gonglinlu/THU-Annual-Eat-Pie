@@ -33,7 +33,7 @@ pip install requests matplotlib pycryptodome
 
 ![servicehall](./img/servicehall.png)
 
-### 1. 输入账号信息
+### 2. 保存账号信息
 
 新建 `./config/account.json` 文件，输入你的学号、密码、服务代码。
 
@@ -45,7 +45,7 @@ pip install requests matplotlib pycryptodome
 }
 ```
 
-### 2. 运行脚本
+### 3. 运行脚本
 
 ```bash
 python main.py
@@ -54,7 +54,7 @@ python main.py
 
 > 你可能需要下载SimHei字体，或者更换为环境中已有的中文字体。
 
-### 3. 其它配置（可选）
+### 4. 其它配置（可选）
 
 修改 `config.json` 文件，自定义起止时间、配色、是否显示具体金额。
 
