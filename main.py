@@ -80,8 +80,8 @@ if __name__ == "__main__":
     all_data = {k: round(v / 100, 2) for k, v in all_data.items()} # 将分转换为元，并保留两位小数
     sum_data = sum(all_data.values())
     print("统计范围：", start_date, "至", end_date)
-    print("消费窗口共计：", len(all_data), "个")
-    print("消费金额共计：", sum_data, "元")
+    print("消费窗口：", len(all_data), "个")
+    print("消费金额：", sum_data, "元")
     
     # 输出结果
     all_data = dict(sorted(all_data.items(), key=lambda x: x[1], reverse=False))

@@ -60,8 +60,8 @@ python main.py
 
 ```json
 {
-    "start_date": "20240101",
-    "end_date": "20241231",
+    "start_date": "2024-01-01",
+    "end_date": "2024-12-31",
     "color": ["颜色1", "颜色2", "..."]
 }
 ```
