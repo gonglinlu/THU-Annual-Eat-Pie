@@ -71,7 +71,7 @@ python main.py
 
 ## Acknowledgement
 - Idea来源：http://xhslink.com/a/8VLkrNIQ3S41
-- 原版代码（柱状图+具体窗口）：https://github.com/leverimmy/THU-Annual-Eat
+- 原版代码（柱状图+显示具体窗口）：https://github.com/leverimmy/THU-Annual-Eat
 
 ## LICENSE
 

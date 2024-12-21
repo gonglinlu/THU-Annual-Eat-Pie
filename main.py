@@ -40,7 +40,7 @@ if __name__ == "__main__":
     
     # 读入配置信息
     try:
-        with open("config.json", "r", encoding='utf-8') as f:
+        with open("./config/config.json", "r", encoding='utf-8') as f:
             config = json.load(f)
             start_date = config["start_date"]
             end_date = config["end_date"]
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         print("配置信息读取失败，请重新输入")
         start_date = input("请输入查询起始日期（格式：2024-01-01）: ")
         end_date = input("请输入查询结束日期（格式：2024-12-31）: ")
-        with open("config.json", "w", encoding='utf-8') as f:
+        with open("./config/config.json", "w", encoding='utf-8') as f:
             json.dump({"start_date": "start_date", "end_date": end_date}, f, indent=4)
     
     # 发送请求，得到加密后的字符串
