@@ -4,7 +4,6 @@ import base64
 import json
 import matplotlib.pyplot as plt
 import requests
-import platform
 
 def decrypt_aes_ecb(encrypted_data: str) -> str:
     
@@ -19,33 +18,54 @@ def decrypt_aes_ecb(encrypted_data: str) -> str:
     return decrypted_data.decode('utf-8')
 
 idserial = ""
+password = ""
 servicehall = ""
 all_data = dict()
 
 if __name__ == "__main__":
     # 读入账户信息
     try:
-        with open("config.json", "r", encoding='utf-8') as f:
+        with open("account.json", "r", encoding='utf-8') as f:
             account = json.load(f)
             idserial = account["idserial"]
+            password = account["password"]
             servicehall = account["servicehall"]
     except Exception as e:
         print("账户信息读取失败，请重新输入")
         idserial = input("请输入学号: ")
-        servicehall = input("请输入服务代码: ")
+        password = input("请输入密码: ")
+        servicehall = input("请输入服务代码（获取方法详见README.md）: ")
         with open("config.json", "w", encoding='utf-8') as f:
-            json.dump({"idserial": idserial, "servicehall": servicehall}, f, indent=4)
+            json.dump({"password": password, "idserial": idserial, "servicehall": servicehall}, f, indent=4)
+    
+    # 读入配置信息
+    try:
+        with open("config.json", "r", encoding='utf-8') as f:
+            config = json.load(f)
+            start_date = config["start_date"]
+            end_date = config["end_date"]
+            colors = config["colors"]
+    except Exception as e:
+        print("配置信息读取失败，请重新输入")
+        start_date = input("请输入查询起始日期（格式：2024-01-01）: ")
+        end_date = input("请输入查询结束日期（格式：2024-12-31）: ")
+        with open("config.json", "w", encoding='utf-8') as f:
+            json.dump({"start_date": "start_date", "end_date": end_date}, f, indent=4)
     
     # 发送请求，得到加密后的字符串
-    url = f"https://card.tsinghua.edu.cn/business/querySelfTradeList?pageNumber=0&pageSize=5000&starttime=2024-01-01&endtime=2024-12-31&idserial={idserial}&tradetype=-1"
+    url = f"https://card.tsinghua.edu.cn/business/querySelfTradeList?pageNumber=0&pageSize=5000&starttime={start_date}&endtime={end_date}&idserial={idserial}&tradetype=-1"
     cookie = {
         "servicehall": servicehall,
     }
     response = requests.post(url, cookies=cookie)
 
-    # 解密字符串
-    encrypted_string = json.loads(response.text)["data"]
-    decrypted_string = decrypt_aes_ecb(encrypted_string)
+    try: # 解密字符串
+        encrypted_string = json.loads(response.text)["data"]
+        decrypted_string = decrypt_aes_ecb(encrypted_string)
+    except Exception as e:
+        print("解密失败，请检查账户信息是否正确，服务代码是否失效")
+        print(response.text)
+        exit()
 
     # 整理数据
     data = json.loads(decrypted_string)
@@ -58,13 +78,16 @@ if __name__ == "__main__":
         except Exception as e:
             pass
     all_data = {k: round(v / 100, 2) for k, v in all_data.items()} # 将分转换为元，并保留两位小数
-    print(len(all_data))
+    sum_data = sum(all_data.values())
+    print("统计范围：", start_date, "至", end_date)
+    print("消费窗口共计：", len(all_data), "个")
+    print("消费金额共计：", sum_data, "元")
+    
     # 输出结果
     all_data = dict(sorted(all_data.items(), key=lambda x: x[1], reverse=False))
-    if platform.system() == "Darwin":
-        plt.rcParams['font.sans-serif'] = ['Arial Unicode MS']
-    else:
-        plt.rcParams['font.sans-serif'] = ['SimHei']
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    
+    # 绘制柱状图
     plt.figure(figsize=(12, len(all_data) / 66 * 18))
     plt.barh(list(all_data.keys()), list(all_data.values()))
     for index, value in enumerate(list(all_data.values())):
@@ -73,9 +96,46 @@ if __name__ == "__main__":
                 str(value),
                 va='center')
         
-    # plt.tight_layout()
+    plt.tight_layout(pad=3)
     plt.xlim(0, 1.2 * max(all_data.values()))
-    plt.title("华清大学食堂消费情况")
+    plt.title("华清大学校园卡消费情况")
     plt.xlabel("消费金额（元）")
-    plt.savefig("result.png")
-    plt.show()
+    plt.savefig("result_bar.png")
+    
+    # 按照大类分组并计算总金额
+    category_data = {}
+    for key, value in all_data.items():
+        category = key.split('_')[0]
+        if category in category_data:
+            category_data[category] += value
+        else:
+            category_data[category] = value
+
+    # 准备饼状图的数据
+    labels = list(category_data.keys())
+    sizes = list(category_data.values())
+
+    total = sum(sizes)  # 总金额
+    threshold = 0.02 * total # 2%以下的类别合并到“其它”类别
+    other_size = sum(size for size in sizes if size < threshold)
+    
+    sizes = [size for size in sizes if size >= threshold]
+    labels = [label for label in labels if category_data[label] >= threshold]
+    sizes, labels = zip(*sorted(zip(sizes, labels), reverse=True))
+    sizes = list(sizes)
+    labels = list(labels)
+
+    # 如果有“其它”类别，添加到列表中
+    if other_size > 0:
+        sizes.append(other_size)
+        labels.append('其它')
+
+    # 绘制饼状图
+    plt.figure(figsize=(8, 8))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=colors if colors else None)
+    plt.title('华清大学校园卡消费情况', fontsize=20, pad=35)
+    plt.tight_layout(pad=3)
+    plt.axis('equal')
+
+    # 保存图片
+    plt.savefig('result_pie.png')
