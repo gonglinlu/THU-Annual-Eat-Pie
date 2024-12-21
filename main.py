@@ -25,7 +25,7 @@ all_data = dict()
 if __name__ == "__main__":
     # 读入账户信息
     try:
-        with open("account.json", "r", encoding='utf-8') as f:
+        with open("./config/account.json", "r", encoding='utf-8') as f:
             account = json.load(f)
             idserial = account["idserial"]
             password = account["password"]
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         idserial = input("请输入学号: ")
         password = input("请输入密码: ")
         servicehall = input("请输入服务代码（获取方法详见README.md）: ")
-        with open("config.json", "w", encoding='utf-8') as f:
+        with open("./config/config.json", "w", encoding='utf-8') as f:
             json.dump({"password": password, "idserial": idserial, "servicehall": servicehall}, f, indent=4)
     
     # 读入配置信息
@@ -44,7 +44,8 @@ if __name__ == "__main__":
             config = json.load(f)
             start_date = config["start_date"]
             end_date = config["end_date"]
-            colors = config["colors"]
+            colors = config["colors"][0]
+            show_num = config["show_numbers"]
     except Exception as e:
         print("配置信息读取失败，请重新输入")
         start_date = input("请输入查询起始日期（格式：2024-01-01）: ")
@@ -64,7 +65,6 @@ if __name__ == "__main__":
         decrypted_string = decrypt_aes_ecb(encrypted_string)
     except Exception as e:
         print("解密失败，请检查账户信息是否正确，服务代码是否失效")
-        print(response.text)
         exit()
 
     # 整理数据
@@ -83,24 +83,8 @@ if __name__ == "__main__":
     print("消费窗口：", len(all_data), "个")
     print("消费金额：", sum_data, "元")
     
-    # 输出结果
     all_data = dict(sorted(all_data.items(), key=lambda x: x[1], reverse=False))
     plt.rcParams['font.sans-serif'] = ['SimHei']
-    
-    # 绘制柱状图
-    plt.figure(figsize=(12, len(all_data) / 66 * 18))
-    plt.barh(list(all_data.keys()), list(all_data.values()))
-    for index, value in enumerate(list(all_data.values())):
-        plt.text(value + 0.01 * max(all_data.values()),
-                index,
-                str(value),
-                va='center')
-        
-    plt.tight_layout(pad=3)
-    plt.xlim(0, 1.2 * max(all_data.values()))
-    plt.title("华清大学校园卡消费情况")
-    plt.xlabel("消费金额（元）")
-    plt.savefig("result_bar.png")
     
     # 按照大类分组并计算总金额
     category_data = {}
@@ -132,10 +116,26 @@ if __name__ == "__main__":
 
     # 绘制饼状图
     plt.figure(figsize=(8, 8))
-    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=colors if colors else None)
-    plt.title('华清大学校园卡消费情况', fontsize=20, pad=35)
+    plt.pie(
+        sizes, 
+        labels=labels, 
+        autopct=lambda p: f'{p:.1f}%\n{p*total/100:.1f}元' if p >= 5 and show_num else f'{p:.1f}%',
+        startangle=140, 
+        colors=colors if colors else None
+    )
+    plt.title('华清大学校园卡消费情况', fontsize=18, pad=15)
+    
+    # 在图表底部添加统计信息
+    fig = plt.gcf()  # 获取当前图表对象
+    
+    additonal_text = f'统计范围：{start_date} 至 {end_date}\n窗口数量：{len(all_data)} 个\n'
+    if show_num:
+        additonal_text += f'总金额：{sum_data} 元\n'
+    additonal_text += 'https://github.com/gonglinlu/THU-Annual-Eat-Pie'
+    
+    fig.text(0.5, 0.02, additonal_text, horizontalalignment='center', fontsize=10)
+
     plt.tight_layout(pad=3)
-    plt.axis('equal')
 
     # 保存图片
-    plt.savefig('result_pie.png')
+    plt.savefig('result_pie.png', dpi=300, bbox_inches='tight')
