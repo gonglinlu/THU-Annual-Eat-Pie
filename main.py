@@ -89,7 +89,9 @@ if __name__ == "__main__":
     # 按照大类分组并计算总金额
     category_data = {}
     for key, value in all_data.items():
-        category = key.split('_')[0]
+        if '淋浴' in key: # 淋浴类别合并
+            key = '淋浴'
+        category = key.split('_')[0] # 以“_”分隔
         if category in category_data:
             category_data[category] += value
         else:
@@ -128,14 +130,14 @@ if __name__ == "__main__":
     # 在图表底部添加统计信息
     fig = plt.gcf()  # 获取当前图表对象
     
-    additonal_text = f'统计范围：{start_date} 至 {end_date}\n窗口数量：{len(all_data)} 个\n'
+    additonal_text = f'{start_date} 至 {end_date}\n'
+    # additonal_text += f'消费窗口：{len(all_data)} 个\n'
     if show_num:
         additonal_text += f'总金额：{sum_data} 元\n'
-    additonal_text += 'https://github.com/gonglinlu/THU-Annual-Eat-Pie'
     
-    fig.text(0.5, 0.02, additonal_text, horizontalalignment='center', fontsize=10)
+    fig.text(0.5, 0.02, additonal_text, horizontalalignment='center', fontsize=10, color='gray', fontstyle='italic')
 
     plt.tight_layout(pad=3)
 
     # 保存图片
-    plt.savefig('result_pie.png', dpi=300, bbox_inches='tight')
+    plt.savefig('result_pie.png', dpi=300)
